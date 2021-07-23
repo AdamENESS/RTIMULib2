@@ -37,6 +37,8 @@
 #include "RTIMUBMX055.h"
 #include "RTIMUBNO055.h"
 #include "RTIMUHMC5883LADXL345.h"
+#include "RTIMUFXOS8700FXAS21002C.h"
+#include "RTIMULSM6DSOXLIS3MDL.h"
 
 //  this sets the learning rate for compass running average calculation
 
@@ -90,6 +92,9 @@ float RTIMU::m_axisRotation[RTIMU_AXIS_ROTATION_COUNT][9] = {
 
 RTIMU *RTIMU::createIMU(RTIMUSettings *settings)
 {
+
+    //return new RTIMUFXOS8700FXAS21002C(settings);
+
     switch (settings->m_imuType) {
     case RTIMU_TYPE_MPU9150:
         return new RTIMUMPU9150(settings);
@@ -119,6 +124,12 @@ RTIMU *RTIMU::createIMU(RTIMUSettings *settings)
 
     case RTIMU_TYPE_HMC5883LADXL345:
 	return new RTIMU5883L(settings);
+
+    case RTIMU_TYPE_FXOS8700FXAS21002C:
+        return new RTIMUFXOS8700FXAS21002C(settings);
+
+    case RTIMU_TYPE_LSM6DSOXLIS3MDL:
+        return new RTIMULSM6DSOXLIS3MDL(settings);
 
     case RTIMU_TYPE_AUTODISCOVER:
         if (settings->discoverIMU(settings->m_imuType, settings->m_busIsI2C, settings->m_I2CSlaveAddress)) {

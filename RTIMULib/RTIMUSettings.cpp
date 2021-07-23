@@ -34,6 +34,8 @@
 #include "IMUDrivers/RTIMULSM9DS0.h"
 #include "IMUDrivers/RTIMULSM9DS1.h"
 #include "IMUDrivers/RTIMUBMX055.h"
+#include "IMUDrivers/RTIMUFXOS8700FXAS21002C.h"
+#include <IMUDrivers/RTIMULSM6DSOXLIS3MDL.h>
 
 #include "IMUDrivers/RTPressureBMP180.h"
 #include "IMUDrivers/RTPressureLPS25H.h"
@@ -45,10 +47,13 @@
 
 RTIMUSettings::RTIMUSettings(const char *productType)
 {
-    if ((strlen(productType) > 200) || (strlen(productType) == 0)) {
+    if ((strlen(productType) > 200) || (strlen(productType) == 0))
+    {
         HAL_ERROR("Product name too long or null - using default\n");
         strcpy(m_filename, "RTIMULib.ini");
-    } else {
+    }
+    else
+    {
         sprintf(m_filename, "%s.ini", productType);
     }
     loadSettings();
@@ -56,10 +61,13 @@ RTIMUSettings::RTIMUSettings(const char *productType)
 
 RTIMUSettings::RTIMUSettings(const char *settingsDirectory, const char *productType)
 {
-    if (((strlen(productType) + strlen(settingsDirectory)) > 200) || (strlen(productType) == 0)) {
+    if (((strlen(productType) + strlen(settingsDirectory)) > 200) || (strlen(productType) == 0))
+    {
         HAL_ERROR("Product name too long or null - using default\n");
         strcpy(m_filename, "RTIMULib.ini");
-    } else {
+    }
+    else
+    {
         sprintf(m_filename, "%s/%s.ini", settingsDirectory, productType);
     }
     loadSettings();
@@ -70,21 +78,26 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
 {
     unsigned char result;
     unsigned char altResult;
-
+    // unsigned char res[16];
+    // memset(res, 0, 16);
     //  auto detect on I2C bus
 
     m_busIsI2C = true;
 
-    if (HALOpen()) {
-
-        if (HALRead(MPU9150_ADDRESS0, MPU9150_WHO_AM_I, 1, &result, "")) {
-            if (result == MPU9250_ID) {
+    if (HALOpen())
+    {
+        if (HALRead(MPU9150_ADDRESS0, MPU9150_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == MPU9250_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9250;
                 slaveAddress = MPU9250_ADDRESS0;
                 busIsI2C = true;
                 HAL_INFO("Detected MPU9250 at standard address\n");
                 return true;
-            } else if (result == MPU9150_ID) {
+            }
+            else if (result == MPU9150_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9150;
                 slaveAddress = MPU9150_ADDRESS0;
                 busIsI2C = true;
@@ -93,14 +106,18 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(MPU9150_ADDRESS1, MPU9150_WHO_AM_I, 1, &result, "")) {
-            if (result == MPU9250_ID) {
+        if (HALRead(MPU9150_ADDRESS1, MPU9150_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == MPU9250_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9250;
                 slaveAddress = MPU9250_ADDRESS1;
                 busIsI2C = true;
                 HAL_INFO("Detected MPU9250 at option address\n");
                 return true;
-            } else if (result == MPU9150_ID) {
+            }
+            else if (result == MPU9150_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9150;
                 slaveAddress = MPU9150_ADDRESS1;
                 busIsI2C = true;
@@ -109,10 +126,14 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(L3GD20H_ADDRESS0, L3GD20H_WHO_AM_I, 1, &result, "")) {
-            if (result == L3GD20H_ID) {
-                if (HALRead(LSM303D_ADDRESS0, LSM303D_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM303D_ID) {
+        if (HALRead(L3GD20H_ADDRESS0, L3GD20H_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == L3GD20H_ID)
+            {
+                if (HALRead(LSM303D_ADDRESS0, LSM303D_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM303D_ID)
+                    {
                         imuType = RTIMU_TYPE_GD20HM303D;
                         slaveAddress = L3GD20H_ADDRESS0;
                         busIsI2C = true;
@@ -120,8 +141,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM303D_ADDRESS1, LSM303D_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM303D_ID) {
+                if (HALRead(LSM303D_ADDRESS1, LSM303D_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM303D_ID)
+                    {
                         imuType = RTIMU_TYPE_GD20HM303D;
                         slaveAddress = L3GD20H_ADDRESS0;
                         busIsI2C = true;
@@ -129,16 +152,21 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM303DLHC_ACCEL_ADDRESS, LSM303DLHC_STATUS_A, 1, &altResult, "")) {
+                if (HALRead(LSM303DLHC_ACCEL_ADDRESS, LSM303DLHC_STATUS_A, 1, &altResult, ""))
+                {
                     imuType = RTIMU_TYPE_GD20HM303DLHC;
                     slaveAddress = L3GD20H_ADDRESS0;
                     busIsI2C = true;
                     HAL_INFO("Detected L3GD20H/LSM303DLHC at standard/standard address\n");
                     return true;
                 }
-            } else if (result == LSM9DS0_GYRO_ID) {
-                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS0, LSM9DS0_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS0_ACCELMAG_ID) {
+            }
+            else if (result == LSM9DS0_GYRO_ID)
+            {
+                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS0, LSM9DS0_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS0_ACCELMAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS0;
                         slaveAddress = LSM9DS0_GYRO_ADDRESS0;
                         busIsI2C = true;
@@ -146,8 +174,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS1, LSM9DS0_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS0_ACCELMAG_ID) {
+                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS1, LSM9DS0_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS0_ACCELMAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS0;
                         slaveAddress = LSM9DS0_GYRO_ADDRESS0;
                         busIsI2C = true;
@@ -155,9 +185,13 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-            } else if (result == LSM9DS1_ID) {
-                if (HALRead(LSM9DS1_MAG_ADDRESS0, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+            }
+            else if (result == LSM9DS1_ID)
+            {
+                if (HALRead(LSM9DS1_MAG_ADDRESS0, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS0;
                         busIsI2C = true;
@@ -165,8 +199,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS1, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS1, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS0;
                         busIsI2C = true;
@@ -174,8 +210,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS2, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS2, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS0;
                         busIsI2C = true;
@@ -183,8 +221,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS3, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS3, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS0;
                         busIsI2C = true;
@@ -195,10 +235,14 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(L3GD20H_ADDRESS1, L3GD20H_WHO_AM_I, 1, &result, "")) {
-            if (result == L3GD20H_ID) {
-                if (HALRead(LSM303D_ADDRESS1, LSM303D_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM303D_ID) {
+        if (HALRead(L3GD20H_ADDRESS1, L3GD20H_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == L3GD20H_ID)
+            {
+                if (HALRead(LSM303D_ADDRESS1, LSM303D_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM303D_ID)
+                    {
                         imuType = RTIMU_TYPE_GD20HM303D;
                         slaveAddress = L3GD20H_ADDRESS1;
                         busIsI2C = true;
@@ -206,8 +250,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM303D_ADDRESS0, LSM303D_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM303D_ID) {
+                if (HALRead(LSM303D_ADDRESS0, LSM303D_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM303D_ID)
+                    {
                         imuType = RTIMU_TYPE_GD20HM303D;
                         slaveAddress = L3GD20H_ADDRESS1;
                         busIsI2C = true;
@@ -215,16 +261,21 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM303DLHC_ACCEL_ADDRESS, LSM303DLHC_STATUS_A, 1, &altResult, "")) {
+                if (HALRead(LSM303DLHC_ACCEL_ADDRESS, LSM303DLHC_STATUS_A, 1, &altResult, ""))
+                {
                     imuType = RTIMU_TYPE_GD20HM303DLHC;
                     slaveAddress = L3GD20H_ADDRESS1;
                     busIsI2C = true;
                     HAL_INFO("Detected L3GD20H/LSM303DLHC at option/standard address\n");
                     return true;
                 }
-            } else if (result == LSM9DS0_GYRO_ID) {
-                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS1, LSM9DS0_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS0_ACCELMAG_ID) {
+            }
+            else if (result == LSM9DS0_GYRO_ID)
+            {
+                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS1, LSM9DS0_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS0_ACCELMAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS0;
                         slaveAddress = LSM9DS0_GYRO_ADDRESS1;
                         busIsI2C = true;
@@ -232,8 +283,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS0, LSM9DS0_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS0_ACCELMAG_ID) {
+                if (HALRead(LSM9DS0_ACCELMAG_ADDRESS0, LSM9DS0_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS0_ACCELMAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS0;
                         slaveAddress = LSM9DS0_GYRO_ADDRESS1;
                         busIsI2C = true;
@@ -241,9 +294,13 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-            } else if (result == LSM9DS1_ID) {
-                if (HALRead(LSM9DS1_MAG_ADDRESS0, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+            }
+            else if (result == LSM9DS1_ID)
+            {
+                if (HALRead(LSM9DS1_MAG_ADDRESS0, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS1;
                         busIsI2C = true;
@@ -251,8 +308,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS1, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS1, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS1;
                         busIsI2C = true;
@@ -260,8 +319,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS2, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS2, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS1;
                         busIsI2C = true;
@@ -269,8 +330,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                         return true;
                     }
                 }
-                if (HALRead(LSM9DS1_MAG_ADDRESS3, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, "")) {
-                    if (altResult == LSM9DS1_MAG_ID) {
+                if (HALRead(LSM9DS1_MAG_ADDRESS3, LSM9DS1_MAG_WHO_AM_I, 1, &altResult, ""))
+                {
+                    if (altResult == LSM9DS1_MAG_ID)
+                    {
                         imuType = RTIMU_TYPE_LSM9DS1;
                         slaveAddress = LSM9DS1_ADDRESS1;
                         busIsI2C = true;
@@ -281,8 +344,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(L3GD20_ADDRESS0, L3GD20_WHO_AM_I, 1, &result, "")) {
-            if (result == L3GD20_ID) {
+        if (HALRead(L3GD20_ADDRESS0, L3GD20_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == L3GD20_ID)
+            {
                 imuType = RTIMU_TYPE_GD20M303DLHC;
                 slaveAddress = L3GD20_ADDRESS0;
                 busIsI2C = true;
@@ -291,8 +356,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(L3GD20_ADDRESS1, L3GD20_WHO_AM_I, 1, &result, "")) {
-            if (result == L3GD20_ID) {
+        if (HALRead(L3GD20_ADDRESS1, L3GD20_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == L3GD20_ID)
+            {
                 imuType = RTIMU_TYPE_GD20M303DLHC;
                 slaveAddress = L3GD20_ADDRESS1;
                 busIsI2C = true;
@@ -301,8 +368,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(BMX055_GYRO_ADDRESS0, BMX055_GYRO_WHO_AM_I, 1, &result, "")) {
-            if (result == BMX055_GYRO_ID) {
+        if (HALRead(BMX055_GYRO_ADDRESS0, BMX055_GYRO_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == BMX055_GYRO_ID)
+            {
                 imuType = RTIMU_TYPE_BMX055;
                 slaveAddress = BMX055_GYRO_ADDRESS0;
                 busIsI2C = true;
@@ -310,8 +379,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                 return true;
             }
         }
-        if (HALRead(BMX055_GYRO_ADDRESS1, BMX055_GYRO_WHO_AM_I, 1, &result, "")) {
-            if (result == BMX055_GYRO_ID) {
+        if (HALRead(BMX055_GYRO_ADDRESS1, BMX055_GYRO_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == BMX055_GYRO_ID)
+            {
                 imuType = RTIMU_TYPE_BMX055;
                 slaveAddress = BMX055_GYRO_ADDRESS1;
                 busIsI2C = true;
@@ -320,8 +391,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
             }
         }
 
-        if (HALRead(BNO055_ADDRESS0, BNO055_WHO_AM_I, 1, &result, "")) {
-            if (result == BNO055_ID) {
+        if (HALRead(BNO055_ADDRESS0, BNO055_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == BNO055_ID)
+            {
                 imuType = RTIMU_TYPE_BNO055;
                 slaveAddress = BNO055_ADDRESS0;
                 busIsI2C = true;
@@ -329,8 +402,10 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                 return true;
             }
         }
-        if (HALRead(BNO055_ADDRESS1, BNO055_WHO_AM_I, 1, &result, "")) {
-            if (result == BNO055_ID) {
+        if (HALRead(BNO055_ADDRESS1, BNO055_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == BNO055_ID)
+            {
                 imuType = RTIMU_TYPE_BNO055;
                 slaveAddress = BNO055_ADDRESS1;
                 busIsI2C = true;
@@ -338,15 +413,74 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
                 return true;
             }
         }
-	if (HALRead(HMC5883_ADDRESS, HMC5883L_WHO_AM_I, 1, &result, "")) {
-	    if (result == HMC5883L_ID) {
-		imuType = RTIMU_TYPE_HMC5883LADXL345;
-		slaveAddress = HMC5883_ADDRESS;
-		busIsI2C = true;
-		HAL_INFO("Detected HMC5883L at standard address\n");
-		return true;
-	    }
-	}
+        if (HALRead(HMC5883_ADDRESS, HMC5883L_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == HMC5883L_ID)
+            {
+                imuType = RTIMU_TYPE_HMC5883LADXL345;
+                slaveAddress = HMC5883_ADDRESS;
+                busIsI2C = true;
+                HAL_INFO("Detected HMC5883L at standard address\n");
+                return true;
+            }
+        }
+
+        if (HALRead(FXOS8700_ADDRESS, FXOS8700_REGISTER_WHO_AM_I, 1, &result, "b"))
+        {
+            HAL_INFO1("ADR: %02x\n", FXOS8700_ADDRESS);
+            HAL_INFO1("DATA: %02x\n", FXOS8700_REGISTER_WHO_AM_I);
+            // for(int i=0;i<0x0f;i++)
+            // {
+            //     HAL_INFO1("RES: %x",  i);
+            //     HAL_INFO1(" %02x\n",res[i]);
+            // }
+            HAL_INFO1("RES: %x\n",  result);
+            if (result == FXOS8700_ID)
+            {
+                imuType = RTIMU_TYPE_FXOS8700FXAS21002C;
+                slaveAddress = FXOS8700_ADDRESS;
+                busIsI2C = true;
+                HAL_INFO("Detected FXOS8700 FXAS21002C at standard address\n");
+                return true;
+            }
+            else
+            {
+                if (HALRead(FXAS21002C_ADDRESS, FXAS21002C_REGISTER_WHO_AM_I, 1, &result, "b"))
+                {
+                    HAL_INFO1("ADR: %02x\n", FXAS21002C_ADDRESS);
+                    HAL_INFO1("DATA: %02x\n", FXAS21002C_REGISTER_WHO_AM_I);
+                    // for(int i=0;i<0x0f;i++)
+                    // {
+                    //     HAL_INFO1("RES: %x",  i);
+                    //     HAL_INFO1(" %02x\n",res[i]);
+                    // }
+                    HAL_INFO1("RES: %x\n",  result);
+                    if (result == FXAS21002C_ID)
+                    {
+                        imuType = RTIMU_TYPE_FXOS8700FXAS21002C;
+                        slaveAddress = FXOS8700_ADDRESS;
+                        busIsI2C = true;
+                        HAL_INFO("Detected FXOS8700 FXAS21002C at standard address\n");
+                        return true;
+                    }
+
+                }
+            }
+        }
+
+        if (HALRead(LSM6DS_I2CADDR_DEFAULT, LSM6DS_WHOAMI, 1, &result, "b"))
+        {
+            HAL_INFO1("ADR: %02x\n", result);
+            if (result == LSM6DSOX_CHIP_ID)
+            {
+                imuType = RTIMU_TYPE_LSM6DSOXLIS3MDL;
+                slaveAddress = LSM6DS_I2CADDR_DEFAULT;
+                busIsI2C = true;
+                HAL_INFO("Detected LSM6DSOX/LSI3MDL Adafruit Precision 9 DoF IMU at Standard address");
+                return true;
+            }
+        }
+
         HALClose();
     }
 
@@ -357,9 +491,12 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
 
     m_SPISelect = 0;
 
-    if (HALOpen()) {
-        if (HALRead(MPU9250_ADDRESS0, MPU9250_WHO_AM_I, 1, &result, "")) {
-            if (result == MPU9250_ID) {
+    if (HALOpen())
+    {
+        if (HALRead(MPU9250_ADDRESS0, MPU9250_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == MPU9250_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9250;
                 slaveAddress = MPU9250_ADDRESS0;
                 busIsI2C = false;
@@ -372,9 +509,12 @@ bool RTIMUSettings::discoverIMU(int& imuType, bool& busIsI2C, unsigned char& sla
 
     m_SPISelect = 1;
 
-    if (HALOpen()) {
-        if (HALRead(MPU9250_ADDRESS0, MPU9250_WHO_AM_I, 1, &result, "")) {
-            if (result == MPU9250_ID) {
+    if (HALOpen())
+    {
+        if (HALRead(MPU9250_ADDRESS0, MPU9250_WHO_AM_I, 1, &result, ""))
+        {
+            if (result == MPU9250_ID)
+            {
                 imuType = RTIMU_TYPE_MPU9250;
                 slaveAddress = MPU9250_ADDRESS0;
                 busIsI2C = false;
@@ -395,10 +535,13 @@ bool RTIMUSettings::discoverPressure(int& pressureType, unsigned char& pressureA
 
     //  auto detect on current bus
 
-    if (HALOpen()) {
+    if (HALOpen())
+    {
 
-        if (HALRead(BMP180_ADDRESS, BMP180_REG_ID, 1, &result, "")) {
-            if (result == BMP180_ID) {
+        if (HALRead(BMP180_ADDRESS, BMP180_REG_ID, 1, &result, ""))
+        {
+            if (result == BMP180_ID)
+            {
                 pressureType = RTPRESSURE_TYPE_BMP180;
                 pressureAddress = BMP180_ADDRESS;
                 HAL_INFO("Detected BMP180\n");
@@ -406,8 +549,10 @@ bool RTIMUSettings::discoverPressure(int& pressureType, unsigned char& pressureA
             }
         }
 
-        if (HALRead(LPS25H_ADDRESS0, LPS25H_REG_ID, 1, &result, "")) {
-            if (result == LPS25H_ID) {
+        if (HALRead(LPS25H_ADDRESS0, LPS25H_REG_ID, 1, &result, ""))
+        {
+            if (result == LPS25H_ID)
+            {
                 pressureType = RTPRESSURE_TYPE_LPS25H;
                 pressureAddress = LPS25H_ADDRESS0;
                 HAL_INFO("Detected LPS25H at standard address\n");
@@ -415,8 +560,10 @@ bool RTIMUSettings::discoverPressure(int& pressureType, unsigned char& pressureA
             }
         }
 
-        if (HALRead(LPS25H_ADDRESS1, LPS25H_REG_ID, 1, &result, "")) {
-            if (result == LPS25H_ID) {
+        if (HALRead(LPS25H_ADDRESS1, LPS25H_REG_ID, 1, &result, ""))
+        {
+            if (result == LPS25H_ID)
+            {
                 pressureType = RTPRESSURE_TYPE_LPS25H;
                 pressureAddress = LPS25H_ADDRESS1;
                 HAL_INFO("Detected LPS25H at option address\n");
@@ -426,13 +573,15 @@ bool RTIMUSettings::discoverPressure(int& pressureType, unsigned char& pressureA
 
         // check for MS5611 (which unfortunately has no ID reg)
 
-        if (HALRead(MS5611_ADDRESS0, 0, 1, &result, "")) {
+        if (HALRead(MS5611_ADDRESS0, 0, 1, &result, ""))
+        {
             pressureType = RTPRESSURE_TYPE_MS5611;
             pressureAddress = MS5611_ADDRESS0;
             HAL_INFO("Detected MS5611 at standard address\n");
             return true;
         }
-        if (HALRead(MS5611_ADDRESS1, 0, 1, &result, "")) {
+        if (HALRead(MS5611_ADDRESS1, 0, 1, &result, ""))
+        {
             pressureType = RTPRESSURE_TYPE_MS5611;
             pressureAddress = MS5611_ADDRESS1;
             HAL_INFO("Detected MS5611 at option address\n");
@@ -449,10 +598,13 @@ bool RTIMUSettings::discoverHumidity(int& humidityType, unsigned char& humidityA
 
     //  auto detect on current bus
 
-    if (HALOpen()) {
+    if (HALOpen())
+    {
 
-        if (HALRead(HTS221_ADDRESS, HTS221_REG_ID, 1, &result, "")) {
-            if (result == HTS221_ID) {
+        if (HALRead(HTS221_ADDRESS, HTS221_REG_ID, 1, &result, ""))
+        {
+            if (result == HTS221_ID)
+            {
                 humidityType = RTHUMIDITY_TYPE_HTS221;
                 humidityAddress = HTS221_ADDRESS;
                 HAL_INFO("Detected HTS221 at standard address\n");
@@ -460,7 +612,8 @@ bool RTIMUSettings::discoverHumidity(int& humidityType, unsigned char& humidityA
             }
         }
 
-        if (HALRead(HTU21D_ADDRESS, HTU21D_READ_USER_REG, 1, &result, "")) {
+        if (HALRead(HTU21D_ADDRESS, HTU21D_READ_USER_REG, 1, &result, ""))
+        {
             humidityType = RTHUMIDITY_TYPE_HTU21D;
             humidityAddress = HTU21D_ADDRESS;
             HAL_INFO("Detected HTU21D at standard address\n");
@@ -491,8 +644,10 @@ void RTIMUSettings::setDefaults()
     m_I2CHumidityAddress = 0;
     m_compassCalValid = false;
     m_compassCalEllipsoidValid = false;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
             m_compassCalEllipsoidCorr[i][j] = 0;
         }
     }
@@ -610,17 +765,20 @@ bool RTIMUSettings::loadSettings()
     RTFLOAT ftemp;
     //  check to see if settings file exists
 
-    if (!(m_fd = fopen(m_filename, "r"))) {
+    if (!(m_fd = fopen(m_filename, "r")))
+    {
         HAL_INFO("Settings file not found. Using defaults and creating settings file\n");
         return saveSettings();
     }
 
-    while (fgets(buf, 200, m_fd)) {
+    while (fgets(buf, 200, m_fd))
+    {
         if ((buf[0] == '#') || (buf[0] == ' ') || (buf[0] == '\n'))
             // just a comment
             continue;
 
-        if (sscanf(buf, "%[^=]=%s", key, val) != 2) {
+        if (sscanf(buf, "%[^=]=%s", key, val) != 2)
+        {
             HAL_ERROR1("Bad line in settings file: %s\n", buf);
             fclose(m_fd);
             return false;
@@ -630,282 +788,491 @@ bool RTIMUSettings::loadSettings()
 
         //  general config
 
-        if (strcmp(key, RTIMULIB_IMU_TYPE) == 0) {
+        if (strcmp(key, RTIMULIB_IMU_TYPE) == 0)
+        {
             m_imuType = atoi(val);
-        } else if (strcmp(key, RTIMULIB_FUSION_TYPE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_FUSION_TYPE) == 0)
+        {
             m_fusionType = atoi(val);
-        } else if (strcmp(key, RTIMULIB_BUS_IS_I2C) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BUS_IS_I2C) == 0)
+        {
             m_busIsI2C = strcmp(val, "true") == 0;
-        } else if (strcmp(key, RTIMULIB_I2C_BUS) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_I2C_BUS) == 0)
+        {
             m_I2CBus = atoi(val);
-        } else if (strcmp(key, RTIMULIB_SPI_BUS) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_SPI_BUS) == 0)
+        {
             m_SPIBus = atoi(val);
-        } else if (strcmp(key, RTIMULIB_SPI_SELECT) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_SPI_SELECT) == 0)
+        {
             m_SPISelect = atoi(val);
-        } else if (strcmp(key, RTIMULIB_SPI_SPEED) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_SPI_SPEED) == 0)
+        {
             m_SPISpeed = atoi(val);
-        } else if (strcmp(key, RTIMULIB_I2C_SLAVEADDRESS) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_I2C_SLAVEADDRESS) == 0)
+        {
             m_I2CSlaveAddress = atoi(val);
-        } else if (strcmp(key, RTIMULIB_AXIS_ROTATION) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_AXIS_ROTATION) == 0)
+        {
             m_axisRotation = atoi(val);
-        } else if (strcmp(key, RTIMULIB_PRESSURE_TYPE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_PRESSURE_TYPE) == 0)
+        {
             m_pressureType = atoi(val);
-        } else if (strcmp(key, RTIMULIB_I2C_PRESSUREADDRESS) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_I2C_PRESSUREADDRESS) == 0)
+        {
             m_I2CPressureAddress = atoi(val);
-        } else if (strcmp(key, RTIMULIB_HUMIDITY_TYPE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_HUMIDITY_TYPE) == 0)
+        {
             m_humidityType = atoi(val);
-        } else if (strcmp(key, RTIMULIB_I2C_HUMIDITYADDRESS) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_I2C_HUMIDITYADDRESS) == 0)
+        {
             m_I2CHumidityAddress = atoi(val);
 
-        // compass calibration and adjustment
+            // compass calibration and adjustment
 
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_VALID) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_VALID) == 0)
+        {
             m_compassCalValid = strcmp(val, "true") == 0;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MINX) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MINX) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMin.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MINY) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MINY) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMin.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MINZ) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MINZ) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMin.setZ(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXX) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXX) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMax.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXY) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXY) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMax.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXZ) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_MAXZ) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalMax.setZ(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSADJ_DECLINATION) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSADJ_DECLINATION) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassAdjDeclination = ftemp;
 
-        // compass ellipsoid calibration
+            // compass ellipsoid calibration
 
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_ELLIPSOID_VALID) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_ELLIPSOID_VALID) == 0)
+        {
             m_compassCalEllipsoidValid = strcmp(val, "true") == 0;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_X) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_X) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidOffset.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_Y) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_Y) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidOffset.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_Z) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_OFFSET_Z) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidOffset.setZ(ftemp);
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR11) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR11) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[0][0] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR12) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR12) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[0][1] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR13) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR13) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[0][2] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR21) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR21) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[1][0] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR22) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR22) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[1][1] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR23) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR23) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[1][2] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR31) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR31) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[2][0] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR32) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR32) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[2][1] = ftemp;
-        } else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR33) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_COMPASSCAL_CORR33) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_compassCalEllipsoidCorr[2][2] = ftemp;
 
-        // accel calibration
+            // accel calibration
 
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_VALID) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_VALID) == 0)
+        {
             m_accelCalValid = strcmp(val, "true") == 0;
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MINX) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MINX) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMin.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MINY) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MINY) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMin.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MINZ) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MINZ) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMin.setZ(ftemp);
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MAXX) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MAXX) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMax.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MAXY) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MAXY) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMax.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_ACCELCAL_MAXZ) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_ACCELCAL_MAXZ) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_accelCalMax.setZ(ftemp);
 
             // gyro bias
 
-        } else if (strcmp(key, RTIMULIB_GYRO_BIAS_VALID) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GYRO_BIAS_VALID) == 0)
+        {
             m_gyroBiasValid = strcmp(val, "true") == 0;
-        } else if (strcmp(key, RTIMULIB_GYRO_BIAS_X) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GYRO_BIAS_X) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_gyroBias.setX(ftemp);
-        } else if (strcmp(key, RTIMULIB_GYRO_BIAS_Y) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GYRO_BIAS_Y) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_gyroBias.setY(ftemp);
-        } else if (strcmp(key, RTIMULIB_GYRO_BIAS_Z) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GYRO_BIAS_Z) == 0)
+        {
             sscanf(val, "%f", &ftemp);
             m_gyroBias.setZ(ftemp);
 
-        //  MPU9150 settings
+            //  MPU9150 settings
 
-        } else if (strcmp(key, RTIMULIB_MPU9150_GYROACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9150_GYROACCEL_SAMPLERATE) == 0)
+        {
             m_MPU9150GyroAccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9150_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9150_COMPASS_SAMPLERATE) == 0)
+        {
             m_MPU9150CompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9150_GYROACCEL_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9150_GYROACCEL_LPF) == 0)
+        {
             m_MPU9150GyroAccelLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9150_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9150_GYRO_FSR) == 0)
+        {
             m_MPU9150GyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9150_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9150_ACCEL_FSR) == 0)
+        {
             m_MPU9150AccelFsr = atoi(val);
 
-        //  MPU9250 settings
+            //  MPU9250 settings
 
-        } else if (strcmp(key, RTIMULIB_MPU9250_GYROACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_GYROACCEL_SAMPLERATE) == 0)
+        {
             m_MPU9250GyroAccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9250_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_COMPASS_SAMPLERATE) == 0)
+        {
             m_MPU9250CompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9250_GYRO_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_GYRO_LPF) == 0)
+        {
             m_MPU9250GyroLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9250_ACCEL_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_ACCEL_LPF) == 0)
+        {
             m_MPU9250AccelLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9250_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_GYRO_FSR) == 0)
+        {
             m_MPU9250GyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_MPU9250_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_MPU9250_ACCEL_FSR) == 0)
+        {
             m_MPU9250AccelFsr = atoi(val);
 
-        //  GD20HM303D settings
+            //  GD20HM303D settings
 
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_SAMPLERATE) == 0)
+        {
             m_GD20HM303DGyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_FSR) == 0)
+        {
             m_GD20HM303DGyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_HPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_HPF) == 0)
+        {
             m_GD20HM303DGyroHpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_BW) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_GYRO_BW) == 0)
+        {
             m_GD20HM303DGyroBW = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_SAMPLERATE) == 0)
+        {
             m_GD20HM303DAccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_FSR) == 0)
+        {
             m_GD20HM303DAccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_ACCEL_LPF) == 0)
+        {
             m_GD20HM303DAccelLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_COMPASS_SAMPLERATE) == 0)
+        {
             m_GD20HM303DCompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303D_COMPASS_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303D_COMPASS_FSR) == 0)
+        {
             m_GD20HM303DCompassFsr = atoi(val);
 
-        //  GD20M303DLHC settings
+            //  GD20M303DLHC settings
 
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_SAMPLERATE) == 0)
+        {
             m_GD20M303DLHCGyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_FSR) == 0)
+        {
             m_GD20M303DLHCGyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_HPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_HPF) == 0)
+        {
             m_GD20M303DLHCGyroHpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_BW) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_GYRO_BW) == 0)
+        {
             m_GD20M303DLHCGyroBW = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_ACCEL_SAMPLERATE) == 0)
+        {
             m_GD20M303DLHCAccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_ACCEL_FSR) == 0)
+        {
             m_GD20M303DLHCAccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_COMPASS_SAMPLERATE) == 0)
+        {
             m_GD20M303DLHCCompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20M303DLHC_COMPASS_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20M303DLHC_COMPASS_FSR) == 0)
+        {
             m_GD20M303DLHCCompassFsr = atoi(val);
 
-        //  GD20HM303DLHC settings
+            //  GD20HM303DLHC settings
 
-         } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_SAMPLERATE) == 0)
+        {
             m_GD20HM303DLHCGyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_FSR) == 0)
+        {
             m_GD20HM303DLHCGyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_HPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_HPF) == 0)
+        {
             m_GD20HM303DLHCGyroHpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_BW) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_GYRO_BW) == 0)
+        {
             m_GD20HM303DLHCGyroBW = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_ACCEL_SAMPLERATE) == 0)
+        {
             m_GD20HM303DLHCAccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_ACCEL_FSR) == 0)
+        {
             m_GD20HM303DLHCAccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_COMPASS_SAMPLERATE) == 0)
+        {
             m_GD20HM303DLHCCompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_GD20HM303DLHC_COMPASS_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_GD20HM303DLHC_COMPASS_FSR) == 0)
+        {
             m_GD20HM303DLHCCompassFsr = atoi(val);
 
-        //  LSM9DS0 settings
+            //  LSM9DS0 settings
 
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_SAMPLERATE) == 0)
+        {
             m_LSM9DS0GyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_FSR) == 0)
+        {
             m_LSM9DS0GyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_HPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_HPF) == 0)
+        {
             m_LSM9DS0GyroHpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_BW) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_GYRO_BW) == 0)
+        {
             m_LSM9DS0GyroBW = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_SAMPLERATE) == 0)
+        {
             m_LSM9DS0AccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_FSR) == 0)
+        {
             m_LSM9DS0AccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_ACCEL_LPF) == 0)
+        {
             m_LSM9DS0AccelLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_COMPASS_SAMPLERATE) == 0)
+        {
             m_LSM9DS0CompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS0_COMPASS_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS0_COMPASS_FSR) == 0)
+        {
             m_LSM9DS0CompassFsr = atoi(val);
 
-        //  LSM9DS1 settings
+            //  LSM9DS1 settings
 
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_SAMPLERATE) == 0)
+        {
             m_LSM9DS1GyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_FSR) == 0)
+        {
             m_LSM9DS1GyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_HPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_HPF) == 0)
+        {
             m_LSM9DS1GyroHpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_BW) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_GYRO_BW) == 0)
+        {
             m_LSM9DS1GyroBW = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_SAMPLERATE) == 0)
+        {
             m_LSM9DS1AccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_FSR) == 0)
+        {
             m_LSM9DS1AccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_LPF) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_ACCEL_LPF) == 0)
+        {
             m_LSM9DS1AccelLpf = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_COMPASS_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_COMPASS_SAMPLERATE) == 0)
+        {
             m_LSM9DS1CompassSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_LSM9DS1_COMPASS_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_LSM9DS1_COMPASS_FSR) == 0)
+        {
             m_LSM9DS1CompassFsr = atoi(val);
 
-        //  BMX055 settings
+            //  BMX055 settings
 
-        } else if (strcmp(key, RTIMULIB_BMX055_GYRO_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BMX055_GYRO_SAMPLERATE) == 0)
+        {
             m_BMX055GyroSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_BMX055_GYRO_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BMX055_GYRO_FSR) == 0)
+        {
             m_BMX055GyroFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_BMX055_ACCEL_SAMPLERATE) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BMX055_ACCEL_SAMPLERATE) == 0)
+        {
             m_BMX055AccelSampleRate = atoi(val);
-        } else if (strcmp(key, RTIMULIB_BMX055_ACCEL_FSR) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BMX055_ACCEL_FSR) == 0)
+        {
             m_BMX055AccelFsr = atoi(val);
-        } else if (strcmp(key, RTIMULIB_BMX055_MAG_PRESET) == 0) {
+        }
+        else if (strcmp(key, RTIMULIB_BMX055_MAG_PRESET) == 0)
+        {
             m_BMX055MagPreset = atoi(val);
 
-        //  Handle unrecognized key
+            //  Handle unrecognized key
 
-        } else {
+        }
+        else
+        {
             HAL_ERROR1("Unrecognized key in settings file: %s\n", buf);
         }
     }
@@ -916,7 +1283,8 @@ bool RTIMUSettings::loadSettings()
 
 bool RTIMUSettings::saveSettings()
 {
-    if (!(m_fd = fopen(m_filename, "w"))) {
+    if (!(m_fd = fopen(m_filename, "w")))
+    {
         HAL_ERROR("Failed to open settings file for save");
         return false;
     }

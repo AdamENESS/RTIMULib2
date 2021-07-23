@@ -44,6 +44,8 @@
 #define RTIMU_TYPE_BMX055                   9                   // Bosch BMX055
 #define RTIMU_TYPE_BNO055                   10                  // Bosch BNO055
 #define RTIMU_TYPE_HMC5883LADXL345          11                  // HMC5883L with ADXL345 and L3G4200D
+#define RTIMU_TYPE_FXOS8700FXAS21002C		12					// FXOS8700/DXAS21992C Adafruit NX Precisuin
+#define RTIMU_TYPE_LSM6DSOXLIS3MDL			13 					// LSM6DSOX/LSI3MDL Adafruit Precision 9 DoF IMU 
 //----------------------------------------------------------
 //
 //  MPU-9150
@@ -1123,4 +1125,260 @@
 
 #define BNO055_PWR_MODE_NORMAL      0x00
 
+
+
+/*=========================================================================
+    I2C ADDRESS/BITS AND SETTINGS
+    -----------------------------------------------------------------------*/
+/** 7-bit address for this sensor */
+#define FXAS21002C_ADDRESS 0x21 // 0100001
+/** Device ID for this sensor (used as a sanity check during init) */
+#define FXAS21002C_ID 0xD7 // 1101 0111
+/** Gyroscope sensitivity at 250dps */
+#define GYRO_SENSITIVITY_250DPS 0.0078125F // Table 35 of datasheet
+/** Gyroscope sensitivity at 500dps */
+#define GYRO_SENSITIVITY_500DPS 0.015625F
+/** Gyroscope sensitivity at 1000dps */
+#define GYRO_SENSITIVITY_1000DPS 0.03125F
+/** Gyroscope sensitivity at 2000dps */
+#define GYRO_SENSITIVITY_2000DPS 0.0625F
+/** 7-bit I2C address for this sensor */
+#define FXOS8700_ADDRESS 0x1F // 0011111
+/** Device ID for this sensor (used as sanity check during init) */
+#define FXOS8700_ID 0xC7 // 1100 0111
+/*=========================================================================*/
+
+/*=========================================================================
+    REGISTERS
+    -----------------------------------------------------------------------*/
+/*!
+    Raw register addresses used to communicate with the sensor.
+*/
+
+  #define FXOS8700_REGISTER_STATUS 0x00		    /**< 0x00 */
+  #define FXOS8700_REGISTER_OUT_X_MSB 0x01		 /**< 0x01 */
+  #define FXOS8700_REGISTER_OUT_X_LSB 0x02		 /**< 0x02 */
+  #define FXOS8700_REGISTER_OUT_Y_MSB 0x03		 /**< 0x03 */
+  #define FXOS8700_REGISTER_OUT_Y_LSB 0x04		 /**< 0x04 */
+  #define FXOS8700_REGISTER_OUT_Z_MSB 0x05		 /**< 0x05 */
+  #define FXOS8700_REGISTER_OUT_Z_LSB 0x06		 /**< 0x06 */
+  #define FXOS8700_REGISTER_WHO_AM_I 0x0D		 /**< 0x0D (default value = 0b11000111, read only) */
+  #define FXOS8700_REGISTER_XYZ_DATA_CFG 0x0E		 /**< 0x0E */
+  #define FXOS8700_REGISTER_CTRL_REG1 0x2A		 /**< 0x2A (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_CTRL_REG2 0x2B		 /**< 0x2B (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_CTRL_REG3 0x2C		 /**< 0x2C (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_CTRL_REG4 0x2D		 /**< 0x2D (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_CTRL_REG5 0x2E		 /**< 0x2E (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_MSTATUS 0x32		    /**< 0x32 */
+  #define FXOS8700_REGISTER_MOUT_X_MSB 0x33		 /**< 0x33 */
+  #define FXOS8700_REGISTER_MOUT_X_LSB 0x34		 /**< 0x34 */
+  #define FXOS8700_REGISTER_MOUT_Y_MSB 0x35		 /**< 0x35 */
+  #define FXOS8700_REGISTER_MOUT_Y_LSB 0x36		 /**< 0x36 */
+  #define FXOS8700_REGISTER_MOUT_Z_MSB 0x37		 /**< 0x37 */
+  #define FXOS8700_REGISTER_MOUT_Z_LSB 0x38		 /**< 0x38 */
+  #define FXOS8700_REGISTER_MCTRL_REG1 0x5B		 /**< 0x5B (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_MCTRL_REG2 0x5C		 /**< 0x5C (default value = 0b00000000, read/write) */
+  #define FXOS8700_REGISTER_MCTRL_REG3 0x5D		 /**< 0x5D (default value = 0b00000000, read/write) */
+
+
+  #define FXAS21002C_REGISTER_STATUS 0x00		    /**< 0x00 */
+  #define FXAS21002C_REGISTER_OUT_X_MSB 0x01		 /**< 0x01 */
+  #define FXAS21002C_REGISTER_OUT_X_LSB 0x02		 /**< 0x02 */
+  #define FXAS21002C_REGISTER_OUT_Y_MSB 0x03		 /**< 0x03 */
+  #define FXAS21002C_REGISTER_OUT_Y_LSB 0x04		 /**< 0x04 */
+  #define FXAS21002C_REGISTER_OUT_Z_MSB 0x05		 /**< 0x05 */
+  #define FXAS21002C_REGISTER_OUT_Z_LSB 0x06		 /**< 0x06 */
+  #define FXAS21002C_REGISTER_WHO_AM_I 0x0C		 /**< 0x0C (default value = 0b11010111, read only) */
+  #define FXAS21002C_REGISTER_CTRL_REG0 0x0D		 /**< 0x0D (default value = 0b00000000, read/write) */
+  #define FXAS21002C_REGISTER_CTRL_REG1 0x13		 /**< 0x13 (default value = 0b00000000, read/write) */
+  #define FXAS21002C_REGISTER_CTRL_REG2 0x14		 /**< 0x14 (default value = 0b00000000, read/write) */
+
+
+
+/*=========================================================================*/
+
+/*=========================================================================
+    OPTIONAL SPEED SETTINGS
+    -----------------------------------------------------------------------*/
+/*!
+    Range settings for the accelerometer sensor.
+*/
+typedef enum {
+  ACCEL_RANGE_2G = 0x00, /**< +/- 2g range */
+  ACCEL_RANGE_4G = 0x01, /**< +/- 4g range */
+  ACCEL_RANGE_8G = 0x02  /**< +/- 8g range */
+} fxos8700AccelRange_t;
+
+/*!
+    Enum to define valid gyroscope range values
+*/
+typedef enum {
+  GYRO_RANGE_250DPS = 250,   /**< 250dps */
+  GYRO_RANGE_500DPS = 500,   /**< 500dps */
+  GYRO_RANGE_1000DPS = 1000, /**< 1000dps */
+  GYRO_RANGE_2000DPS = 2000  /**< 2000dps */
+} gyroRange_t;
+
+
+/*=========================================================================*/
+
+
+/*=========================================================================
+    RAW GYROSCOPE DATA TYPE
+    -----------------------------------------------------------------------*/
+/*!
+    @brief  Raw (integer) values from the gyroscope sensor.
+*/
+typedef struct {
+  int16_t x; /**< Raw int16_t value from the x axis */
+  int16_t y; /**< Raw int16_t value from the y axis */
+  int16_t z; /**< Raw int16_t value from the z axis */
+} fxos8700RawData_t;
+
+typedef struct {
+  int16_t x; /**< Raw int16_t value for the x axis */
+  int16_t y; /**< Raw int16_t value for the y axis */
+  int16_t z; /**< Raw int16_t value for the z axis */
+} gyroRawData_t;
+/*=========================================================================*/
+
+
+
+#define LSM6DS_I2CADDR_DEFAULT 0x6A ///< LSM6DS default i2c address
+
+#define LSM6DS_FUNC_CFG_ACCESS 0x1 ///< Enable embedded functions register
+#define LSM6DS_INT1_CTRL 0x0D      ///< Interrupt control for INT 1
+#define LSM6DS_INT2_CTRL 0x0E      ///< Interrupt control for INT 2
+#define LSM6DS_WHOAMI 0xF          ///< Chip ID register
+#define LSM6DS_CTRL1_XL 0x10       ///< Main accelerometer config register
+#define LSM6DS_CTRL2_G 0x11        ///< Main gyro config register
+#define LSM6DS_CTRL3_C 0x12        ///< Main configuration register
+#define LSM6DS_CTRL8_XL 0x17       ///< High and low pass for accel
+#define LSM6DS_CTRL10_C 0x19       ///< Main configuration register
+#define LSM6DS_WAKEUP_SRC 0x1B     ///< Why we woke up
+#define LSM6DS_STATUS_REG 0X1E     ///< Status register
+#define LSM6DS_OUT_TEMP_L 0x20     ///< First data register (temperature low)
+#define LSM6DS_OUTX_L_G 0x22       ///< First gyro data register
+#define LSM6DS_OUTX_L_A 0x28       ///< First accel data register
+#define LSM6DS_STEPCOUNTER 0x4B    ///< 16-bit step counter
+#define LSM6DS_TAP_CFG 0x58        ///< Tap/pedometer configuration
+#define LSM6DS_WAKEUP_THS                                                      \
+  0x5B ///< Single and double-tap function threshold register
+#define LSM6DS_WAKEUP_DUR                                                      \
+  0x5C ///< Free-fall, wakeup, timestamp and sleep mode duration
+#define LSM6DS_MD1_CFG 0x5E ///< Functions routing on INT1 register
+
+/** The accelerometer data rate */
+typedef enum data_rate {
+  LSM6DS_RATE_SHUTDOWN,
+  LSM6DS_RATE_12_5_HZ,
+  LSM6DS_RATE_26_HZ,
+  LSM6DS_RATE_52_HZ,
+  LSM6DS_RATE_104_HZ,
+  LSM6DS_RATE_208_HZ,
+  LSM6DS_RATE_416_HZ,
+  LSM6DS_RATE_833_HZ,
+  LSM6DS_RATE_1_66K_HZ,
+  LSM6DS_RATE_3_33K_HZ,
+  LSM6DS_RATE_6_66K_HZ,
+} lsm6ds_data_rate_t;
+
+/** The accelerometer data range */
+typedef enum accel_range {
+  LSM6DS_ACCEL_RANGE_2_G,
+  LSM6DS_ACCEL_RANGE_16_G,
+  LSM6DS_ACCEL_RANGE_4_G,
+  LSM6DS_ACCEL_RANGE_8_G
+} lsm6ds_accel_range_t;
+
+/** The gyro data range */
+typedef enum gyro_range {
+  LSM6DS_GYRO_RANGE_125_DPS = 0b0010,
+  LSM6DS_GYRO_RANGE_250_DPS = 0b0000,
+  LSM6DS_GYRO_RANGE_500_DPS = 0b0100,
+  LSM6DS_GYRO_RANGE_1000_DPS = 0b1000,
+  LSM6DS_GYRO_RANGE_2000_DPS = 0b1100,
+  ISM330DHCX_GYRO_RANGE_4000_DPS = 0b0001
+} lsm6ds_gyro_range_t;
+
+/** The high pass filter bandwidth */
+typedef enum hpf_range {
+  LSM6DS_HPF_ODR_DIV_50 = 0,
+  LSM6DS_HPF_ODR_DIV_100 = 1,
+  LSM6DS_HPF_ODR_DIV_9 = 2,
+  LSM6DS_HPF_ODR_DIV_400 = 3,
+} lsm6ds_hp_filter_t;
+
+
+#define LSM6DSOX_CHIP_ID 0x6C ///< LSM6DSOX default device id from WHOAMI
+
+#define LSM6DSOX_FUNC_CFG_ACCESS 0x1 ///< Enable embedded functions register
+#define LSM6DSOX_PIN_CTRL 0x2        ///< Pin control register
+
+#define LSM6DSOX_INT1_CTRL 0x0D ///< Interrupt enable for data ready
+#define LSM6DSOX_CTRL1_XL 0x10  ///< Main accelerometer config register
+#define LSM6DSOX_CTRL2_G 0x11   ///< Main gyro config register
+#define LSM6DSOX_CTRL3_C 0x12   ///< Main configuration register
+#define LSM6DSOX_CTRL9_XL 0x18  ///< Includes i3c disable bit
+
+#define LSM6DSOX_MASTER_CONFIG 0x14
+
+
+
+/*=========================================================================
+I2C ADDRESS/BITS
+-----------------------------------------------------------------------*/
+#define LIS3MDL_I2CADDR_DEFAULT (0x1C) ///< Default breakout addres
+/*=========================================================================*/
+
+#define LIS3MDL_REG_WHO_AM_I 0x0F  ///< Register that contains the part ID
+#define LIS3MDL_REG_CTRL_REG1 0x20 ///< Register address for control 1
+#define LIS3MDL_REG_CTRL_REG2 0x21 ///< Register address for control 2
+#define LIS3MDL_REG_CTRL_REG3 0x22 ///< Register address for control 3
+#define LIS3MDL_REG_CTRL_REG4 0x23 ///< Register address for control 3
+#define LIS3MDL_REG_STATUS 0x27    ///< Register address for status
+#define LIS3MDL_REG_OUT_X_L 0x28   ///< Register address for X axis lower byte
+#define LIS3MDL_REG_INT_CFG 0x30   ///< Interrupt configuration register
+#define LIS3MDL_REG_INT_THS_L 0x32 ///< Low byte of the irq threshold
+
+#define LIS3MDL_CHIP_ID 0x3D
+
+/** The magnetometer ranges */
+typedef enum {
+  LIS3MDL_RANGE_4_GAUSS = 0b00,  ///< +/- 4g (default value)
+  LIS3MDL_RANGE_8_GAUSS = 0b01,  ///< +/- 8g
+  LIS3MDL_RANGE_12_GAUSS = 0b10, ///< +/- 12g
+  LIS3MDL_RANGE_16_GAUSS = 0b11, ///< +/- 16g
+} lis3mdl_range_t;
+
+/** The magnetometer data rate, includes FAST_ODR bit */
+typedef enum {
+  LIS3MDL_DATARATE_0_625_HZ = 0b0000, ///<  0.625 Hz
+  LIS3MDL_DATARATE_1_25_HZ = 0b0010,  ///<  1.25 Hz
+  LIS3MDL_DATARATE_2_5_HZ = 0b0100,   ///<  2.5 Hz
+  LIS3MDL_DATARATE_5_HZ = 0b0110,     ///<  5 Hz
+  LIS3MDL_DATARATE_10_HZ = 0b1000,    ///<  10 Hz
+  LIS3MDL_DATARATE_20_HZ = 0b1010,    ///<  20 Hz
+  LIS3MDL_DATARATE_40_HZ = 0b1100,    ///<  40 Hz
+  LIS3MDL_DATARATE_80_HZ = 0b1110,    ///<  80 Hz
+  LIS3MDL_DATARATE_155_HZ = 0b0001,   ///<  155 Hz (FAST_ODR + UHP)
+  LIS3MDL_DATARATE_300_HZ = 0b0011,   ///<  300 Hz (FAST_ODR + HP)
+  LIS3MDL_DATARATE_560_HZ = 0b0101,   ///<  560 Hz (FAST_ODR + MP)
+  LIS3MDL_DATARATE_1000_HZ = 0b0111,  ///<  1000 Hz (FAST_ODR + LP)
+} lis3mdl_dataRate_t;
+
+/** The magnetometer performance mode */
+typedef enum {
+  LIS3MDL_LOWPOWERMODE = 0b00,  ///< Low power mode
+  LIS3MDL_MEDIUMMODE = 0b01,    ///< Medium performance mode
+  LIS3MDL_HIGHMODE = 0b10,      ///< High performance mode
+  LIS3MDL_ULTRAHIGHMODE = 0b11, ///< Ultra-high performance mode
+} lis3mdl_performancemode_t;
+
+/** The magnetometer operation mode */
+typedef enum {
+  LIS3MDL_CONTINUOUSMODE = 0b00, ///< Continuous conversion
+  LIS3MDL_SINGLEMODE = 0b01,     ///< Single-shot conversion
+  LIS3MDL_POWERDOWNMODE = 0b11,  ///< Powered-down mode
+} lis3mdl_operationmode_t;
 #endif // _RTIMUDEFS_H
